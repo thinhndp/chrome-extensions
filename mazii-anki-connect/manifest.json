@@ -1,0 +1,18 @@
+{
+	"name": "Mazii Anki Connector",
+	"description": "Add word definition from Mazii to Anki",
+	"version": "1.0",
+	"manifest_version": 3,
+	"permissions": [ "tabs" ],
+	"content_scripts": [
+		{
+			"matches": [ "https://mazii.net/*/search/word/*" ],
+			"js": [ "contentScript.js" ]
+		}
+	],
+	"host_permissions": [
+		"http://www.example.com/",
+		"http://127.0.0.1:8765/",
+		"http://localhost:8765/"
+	]
+}
