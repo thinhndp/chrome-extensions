@@ -1,7 +1,4 @@
 setTimeout(() => {
-	var contentSecurityPolicyTagTemp = document.createElement('template');
-	contentSecurityPolicyTagTemp.innerHTML = '<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">';
-	document.getElementsByTagName('head')[0].append(contentSecurityPolicyTagTemp.content.childNodes[0]);
 	var btnList = document.getElementsByClassName("box-btn-right-df")[0];
 	if (btnList != null) {
 		var addToAnkiBtn = document.createElement('div');
@@ -15,23 +12,30 @@ setTimeout(() => {
 			var meaningListText = meaningList.map(meaning => meaning.innerText);
 			var meaningField = meaningListText.join('\n');
 			var frontCardContent = meaningField;
-	
-			var wordMainField = document.getElementsByClassName("main-word cl-red-main japanese-char")[0].innerText;
+			
+			var wordMainElement = document.createElement('div');
+			wordMainElement.style.color = "#e53c20";
+			wordMainElement.style.fontSize = "24px";
+			wordMainElement.style.fontWeight = "700";
+			var wordMainText = document.getElementsByClassName("main-word cl-red-main japanese-char")[0].innerText;
+			wordMainElement.innerText = wordMainText;
+			var wordMainField = wordMainElement.outerHTML;
 			var wordPhoneticField = document.getElementsByClassName("phonetic-word japanese-char cl-content")[0].innerText;
 			var wordSinoVietField = '';
 			var wordSinoViet = document.getElementsByClassName("han-viet-word cl-content")[0];
 			if (wordSinoViet != null) {
 				wordSinoVietField = wordSinoViet.innerText;
 			}
-			var backCardContent = wordMainField + '\n' + wordPhoneticField + wordSinoVietField;
+			var backCardContent = wordMainField + wordSinoVietField + '<br/>' 
+				+ wordPhoneticField + '<br/><div style="font-size: 12px; color: lightgray">placeholder</div>';
 
 			console.log(frontCardContent);
 			console.log(backCardContent);
 			invokeAnkiConnect('guiAddCards', 6,
 				{
 					"note": {
-						"deckName": "newJpWord",
-						"modelName": "Basic",
+						"deckName": "Jap Class Vocab",
+						"modelName": "Basic (and reversed card)",
 						"fields": {
 							"Front": frontCardContent,
 							"Back": backCardContent
@@ -41,63 +45,23 @@ setTimeout(() => {
 						]
 					}
 				}
-			)
-			// .then(result => console.log(`${result}`));
+			);
 		});
 
 	}
-}, 1000);
+}, 2000);
 
 function invokeAnkiConnect(action, version, params={}) {
-	/* const options = {
+	console.log('invoke');
+	const options = {
 		method: 'POST',
 		body: JSON.stringify({action, version, params}),
 		headers: {
 			'Content-Type': 'application/json'
 		}
-	}
-	fetch('http://127.0.0.1:8765/', options)
-		.then(res => res.json())
-		.then(res => console.log(res))
-		.catch(err => {
-			console.log('Error: ', err);
-		}); */
-	fetch('http://www.example.com?par=0')
-		.then(r => r.text())
-		.then(result => {
-			console.log(result);
-		})
-		.catch(err => {
-			console.log('Error: ', err);
-		});
-}
-
-function invokeAnkiConnect2(action, version, params={}) {
-	return new Promise((resolve, reject) => {
-		const xhr = new XMLHttpRequest();
-		xhr.addEventListener('error', () => reject('failed to issue request'));
-		xhr.addEventListener('load', () => {
-			try {
-				const response = JSON.parse(xhr.responseText);
-				if (Object.getOwnPropertyNames(response).length != 2) {
-					throw 'response has an unexpected number of fields';
-				}
-				if (!response.hasOwnProperty('error')) {
-					throw 'response is missing required error field';
-				}
-				if (!response.hasOwnProperty('result')) {
-					throw 'response is missing required result field';
-				}
-				if (response.error) {
-					throw response.error;
-				}
-				resolve(response.result);
-			} catch (e) {
-				reject(e);
-			}
-		});
-
-		xhr.open('POST', 'http://localhost:8765');
-		xhr.send(JSON.stringify({action, version, params}));
-	});
+	};
+	chrome.runtime.sendMessage(
+		{ type: 'ANKI_CONNECT', options },
+		res => { console.log(res); }
+	);
 }
