@@ -1,3 +1,13 @@
+chrome.tabs.onUpdated.addListener(
+    function(tabId, changeInfo, tab) {
+        if (changeInfo.url) {
+            chrome.tabs.sendMessage( tabId, {
+                message: 'URL_CHANGED'
+            });
+        }
+    }
+);
+
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
         if (request.type = 'ANKI_CONNECT') {
